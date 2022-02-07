@@ -115,9 +115,10 @@ class Innova:
         else:
             r = requests.post(cmd_url)
         if r.status_code == 200:
-            return True
-        else:
-            return False
+            result = json.loads(r.text)
+            if result["success"]:
+                return True
+        return False
 
     def power_on(self):
         if self.send_command(CMD_POWER_ON):

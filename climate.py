@@ -230,7 +230,7 @@ class InnovaEntity(ClimateEntity):
         if swing_mode == SWING_ON:
             self._innova.rotation_on()
         if swing_mode == SWING_OFF:
-            self._innova.rotation_off
+            self._innova.rotation_off()
 
     def set_temperature(self, **kwargs):
         """Set new target temperature."""
