@@ -1,9 +1,15 @@
 {
-    "domain": "innova",
-    "name": "InnovaEnergie",
-    "documentation": "",
-    "requirements": ["requests==2.27.1"],
-    "codeowners": [],
-    "iot_class": "local_polling",
-    "loggers": ["innova"]
-  }
+  "domain": "innova",
+  "name": "InnovaEnergie",
+  "version": "0.0.1",
+  "documentation": "",
+  "requirements": [
+    "requests==2.27.1",
+    "innova-controls==0.0.1"
+  ],
+  "codeowners": [],
+  "iot_class": "local_polling",
+  "loggers": [
+    "innova"
+  ]
+}

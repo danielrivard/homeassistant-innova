@@ -37,7 +37,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from custom_components.innova.innova_controls import Innova, Mode
+from innova_controls import Innova, Mode
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -62,7 +62,7 @@ def setup_platform(
 
 
 class InnovaEntity(ClimateEntity):
-    """Representation a Proliphix thermostat."""
+    """Representation of an Innova AC Unit controls."""
 
     def __init__(self, innova: Innova):
         """Initialize the thermostat."""
@@ -98,11 +98,7 @@ class InnovaEntity(ClimateEntity):
 
     @property
     def precision(self):
-        """Return the precision of the system.
-
-        Proliphix temperature values are passed back and forth in the
-        API as tenths of degrees F (i.e. 690 for 69 degrees).
-        """
+        """Return the precision of the system."""
         return PRECISION_WHOLE
 
     @property
