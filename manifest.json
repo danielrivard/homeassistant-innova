@@ -1,7 +1,7 @@
 {
   "domain": "innova",
   "name": "InnovaEnergie",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "documentation": "",
   "requirements": [
     "requests==2.27.1",

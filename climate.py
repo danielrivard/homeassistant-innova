@@ -117,6 +117,11 @@ class InnovaEntity(ClimateEntity):
         return self._innova.target_temperature
 
     @property
+    def target_temperature_step(self) -> float | None:
+        """Return the temperature step by which it can be increased/decreased."""
+        return 1.0
+
+    @property
     def min_temp(self) -> float:
         return self._innova.min_temperature
 
