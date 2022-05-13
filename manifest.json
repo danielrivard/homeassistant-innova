@@ -2,12 +2,13 @@
   "domain": "innova",
   "name": "InnovaEnergie",
   "version": "0.0.2",
-  "documentation": "",
+  "documentation": "https://github.com/danielrivard/homeassistant-innova/blob/main/README.md",
+  "issue_tracker": "https://github.com/danielrivard/homeassistant-innova/issues",
   "requirements": [
     "requests==2.27.1",
     "innova-controls==0.0.1"
   ],
-  "codeowners": [],
+  "codeowners": ["@danielrivard"],
   "iot_class": "local_polling",
   "loggers": [
     "innova"
