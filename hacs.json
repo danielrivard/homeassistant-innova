@@ -1,6 +1,5 @@
 {
     "name": "Innova 2.0 Air Conditioner Integration",
-    "content_in_root": true,
     "render_readme": true,
     "domains": ["climate"],
     "homeassistant": "2022.5.0"
