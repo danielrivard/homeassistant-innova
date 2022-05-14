@@ -30,6 +30,7 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import (
     ATTR_TEMPERATURE,
     CONF_HOST,
+    CONF_SCAN_INTERVAL,
     PRECISION_WHOLE,
     TEMP_CELSIUS,
 )
@@ -42,6 +43,7 @@ from innova_controls import Innova, Mode
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
+        vol.Optional(CONF_SCAN_INTERVAL): vol.All(cv.time_period, cv.positive_timedelta),
     }
 )
 
@@ -53,9 +55,9 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Innova entity."""
-    host = config.get(CONF_HOST)
+    host_ip = config.get(CONF_HOST)
 
-    innova = Innova(host)
+    innova = Innova(host=host_ip)
     innova.update()
 
     add_entities([InnovaEntity(innova)], True)
