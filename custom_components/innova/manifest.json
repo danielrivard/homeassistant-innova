@@ -6,10 +6,11 @@
   "issue_tracker": "https://github.com/danielrivard/homeassistant-innova/issues",
   "requirements": [
     "requests==2.27.1",
-    "innova-controls==1.0.0"
+    "retry2==0.9.3",
+    "innova-controls==1.0.2"
   ],
   "codeowners": ["@danielrivard"],
-  "iot_class": "local_polling",
+  "iot_class": "cloud_polling",
   "loggers": [
     "innova"
   ]

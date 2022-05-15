@@ -30,7 +30,6 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import (
     ATTR_TEMPERATURE,
     CONF_HOST,
-    CONF_SCAN_INTERVAL,
     PRECISION_WHOLE,
     TEMP_CELSIUS,
 )
@@ -40,10 +39,21 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from innova_controls import Innova, Mode
 
+_CONF_USE_CLOUD = 'use_cloud'
+_CONF_SERIAL = 'serial'
+_CONF_UID = 'uid'
+_CONF_MODE_LOCAL = 'local'
+_CONF_MODE_CLOUD = 'cloud'
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_HOST): cv.string,
-        vol.Optional(CONF_SCAN_INTERVAL): vol.All(cv.time_period, cv.positive_timedelta),
+        vol.Exclusive(_CONF_MODE_LOCAL, 'mode'): {
+            vol.Required(CONF_HOST): cv.string
+        },
+        vol.Exclusive(_CONF_MODE_CLOUD, 'mode'): {
+            vol.Required(_CONF_SERIAL): cv.string,
+            vol.Required(_CONF_UID): cv.string
+        }
     }
 )
 
@@ -55,9 +65,16 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Innova entity."""
-    host_ip = config.get(CONF_HOST)
+    if _CONF_MODE_LOCAL in config:
+        host_ip = config.get(_CONF_MODE_LOCAL).get(CONF_HOST)
+        innova = Innova(host=host_ip)
+    
+    if _CONF_MODE_CLOUD in config:
+        serial = config.get(_CONF_MODE_CLOUD).get(_CONF_SERIAL)
+        uid = config.get(_CONF_MODE_CLOUD).get(_CONF_UID)
+        innova = Innova(serial=serial, uid=uid)
 
-    innova = Innova(host=host_ip)
+    # innova = Innova(host=host_ip)
     innova.update()
 
     add_entities([InnovaEntity(innova)], True)
