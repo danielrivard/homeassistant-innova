@@ -1,13 +1,11 @@
 {
   "domain": "innova",
   "name": "InnovaEnergie",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "documentation": "https://github.com/danielrivard/homeassistant-innova/blob/main/README.md",
   "issue_tracker": "https://github.com/danielrivard/homeassistant-innova/issues",
   "requirements": [
-    "requests==2.27.1",
-    "retry2==0.9.3",
-    "innova-controls==1.0.3"
+    "innova-controls==1.0.4"
   ],
   "codeowners": [
     "@danielrivard"

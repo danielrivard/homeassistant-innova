@@ -1,4 +1,2 @@
-requests==2.27.1
-retry2==0.9.3
 homeassistant==2022.5.5
-innova-controls==1.0.3
+innova-controls==1.0.4
