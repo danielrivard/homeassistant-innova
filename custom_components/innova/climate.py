@@ -39,22 +39,56 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from innova_controls import Innova, Mode
 
-_CONF_USE_CLOUD = 'use_cloud'
-_CONF_SERIAL = 'serial'
-_CONF_UID = 'uid'
-_CONF_MODE_LOCAL = 'local'
-_CONF_MODE_CLOUD = 'cloud'
+_CONF_USE_CLOUD = "use_cloud"
+_CONF_SERIAL = "serial"
+_CONF_UID = "uid"
+_CONF_MODE_LOCAL = "local"
+_CONF_MODE_CLOUD = "cloud"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Exclusive(_CONF_MODE_LOCAL, 'mode'): {
-            vol.Required(CONF_HOST): cv.string
-        },
-        vol.Exclusive(_CONF_MODE_CLOUD, 'mode'): {
+        vol.Exclusive(_CONF_MODE_LOCAL, "mode"): {vol.Required(CONF_HOST): cv.string},
+        vol.Exclusive(_CONF_MODE_CLOUD, "mode"): {
             vol.Required(_CONF_SERIAL): cv.string,
-            vol.Required(_CONF_UID): cv.string
-        }
+            vol.Required(_CONF_UID): cv.string,
+        },
     }
+)
+
+# cloud_schema = vol.Schema({
+#     vol.Required(_CONF_USE_CLOUD): cv.boolean,
+#     vol.Required(_CONF_SERIAL): cv.string,
+#     vol.Required(_CONF_UID): cv.string
+# })
+
+# local_schema = vol.Schema({
+#     vol.Required(_CONF_USE_CLOUD): cv.boolean,
+#     vol.Required(CONF_HOST): cv.string
+# })
+
+
+def validate_mode(configs):
+    if configs[_CONF_USE_CLOUD] == True:
+        if _CONF_SERIAL not in configs or _CONF_UID not in configs:
+            raise vol.Invalid(
+                f"To use cloud mode, you need to provide '{_CONF_SERIAL}' AND '{_CONF_UID}'"
+            )
+    else:
+        if CONF_HOST not in configs:
+            raise vol.Invalid(f"To use local mode, you need to provide '{CONF_HOST}'")
+    return configs
+
+
+CONFIG_SCHEMA = vol.Schema(
+    vol.All(
+        {
+            vol.Required(_CONF_USE_CLOUD, default=False): cv.boolean,
+            CONF_HOST: cv.string,
+            _CONF_SERIAL: cv.string,
+            _CONF_UID: cv.string,
+        },
+        validate_mode,
+    )
 )
 
 
@@ -68,7 +102,7 @@ def setup_platform(
     if _CONF_MODE_LOCAL in config:
         host_ip = config.get(_CONF_MODE_LOCAL).get(CONF_HOST)
         innova = Innova(host=host_ip)
-    
+
     if _CONF_MODE_CLOUD in config:
         serial = config.get(_CONF_MODE_CLOUD).get(_CONF_SERIAL)
         uid = config.get(_CONF_MODE_CLOUD).get(_CONF_UID)
