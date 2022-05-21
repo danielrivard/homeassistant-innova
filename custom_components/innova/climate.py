@@ -3,23 +3,14 @@ from __future__ import annotations
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.climate import PLATFORM_SCHEMA, ClimateEntity
+from homeassistant.components.climate import (
+    PLATFORM_SCHEMA,
+    ClimateEntity,
+    HVACMode,
+    HVACAction,
+    ClimateEntityFeature,
+)
 from homeassistant.components.climate.const import (
-    CURRENT_HVAC_COOL,
-    CURRENT_HVAC_DRY,
-    CURRENT_HVAC_FAN,
-    CURRENT_HVAC_HEAT,
-    CURRENT_HVAC_IDLE,
-    CURRENT_HVAC_OFF,
-    HVAC_MODE_AUTO,
-    HVAC_MODE_COOL,
-    HVAC_MODE_DRY,
-    HVAC_MODE_FAN_ONLY,
-    HVAC_MODE_HEAT,
-    HVAC_MODE_OFF,
-    SUPPORT_TARGET_TEMPERATURE,
-    SUPPORT_FAN_MODE,
-    SUPPORT_SWING_MODE,
     SWING_ON,
     SWING_OFF,
     FAN_AUTO,
@@ -30,7 +21,6 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import (
     ATTR_TEMPERATURE,
     CONF_HOST,
-    CONF_SCAN_INTERVAL,
     PRECISION_WHOLE,
     TEMP_CELSIUS,
 )
@@ -43,7 +33,6 @@ from innova_controls import Innova, Mode
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
-        vol.Optional(CONF_SCAN_INTERVAL): vol.All(cv.time_period, cv.positive_timedelta),
     }
 )
 
@@ -75,7 +64,11 @@ class InnovaEntity(ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_TARGET_TEMPERATURE | SUPPORT_SWING_MODE | SUPPORT_FAN_MODE
+        return (
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.SWING_MODE
+            | ClimateEntityFeature.FAN_MODE
+        )
 
     @property
     def should_poll(self):
@@ -137,45 +130,52 @@ class InnovaEntity(ClimateEntity):
         mode = self._innova.mode
 
         if not self._innova.power:
-            return CURRENT_HVAC_OFF
+            return HVACAction.OFF
         if mode == Mode.HEATING:
-            return CURRENT_HVAC_HEAT
+            return HVACAction.HEATING
         if mode == Mode.COOLING:
-            return CURRENT_HVAC_COOL
+            return HVACAction.COOLING
         if mode == Mode.DEHUMIDIFICATION:
-            return CURRENT_HVAC_DRY
+            return HVACAction.DRYING
         if mode == Mode.FAN_ONLY:
-            return CURRENT_HVAC_FAN
-        return CURRENT_HVAC_IDLE
+            return HVACAction.FAN
+        if mode == Mode.AUTO:
+            if self.current_temperature > self.target_temperature + 1:
+                return HVACAction.COOLING
+            elif self.current_temperature < self.target_temperature - 1:
+                return HVACAction.HEATING
+            else:
+                return HVACAction.IDLE
+        return HVACAction.IDLE
 
     @property
     def hvac_mode(self):
         """Return the current state of the thermostat."""
         if not self._innova.power:
-            return HVAC_MODE_OFF
+            return HVACMode.OFF
 
         if self._innova.mode == Mode.COOLING:
-            return HVAC_MODE_COOL
+            return HVACMode.COOL
         if self._innova.mode == Mode.HEATING:
-            return HVAC_MODE_HEAT
+            return HVACMode.HEAT
         if self._innova.mode == Mode.DEHUMIDIFICATION:
-            return HVAC_MODE_DRY
+            return HVACMode.DRY
         if self._innova.mode == Mode.FAN_ONLY:
-            return HVAC_MODE_FAN_ONLY
+            return HVACMode.FAN_ONLY
         if self._innova.mode == Mode.AUTO:
-            return HVAC_MODE_AUTO
-        return HVAC_MODE_OFF
+            return HVACMode.AUTO
+        return HVACMode.OFF
 
     @property
     def hvac_modes(self):
         """Return available HVAC modes."""
         return [
-            HVAC_MODE_OFF,
-            HVAC_MODE_COOL,
-            HVAC_MODE_HEAT,
-            HVAC_MODE_DRY,
-            HVAC_MODE_FAN_ONLY,
-            HVAC_MODE_AUTO,
+            HVACMode.OFF,
+            HVACMode.COOL,
+            HVACMode.HEAT,
+            HVACMode.DRY,
+            HVACMode.FAN_ONLY,
+            HVACMode.AUTO,
         ]
 
     @property
@@ -206,17 +206,17 @@ class InnovaEntity(ClimateEntity):
             return SWING_OFF
 
     def set_hvac_mode(self, hvac_mode: str) -> None:
-        if hvac_mode == HVAC_MODE_OFF:
+        if hvac_mode == HVACMode.OFF:
             self._innova.power_off()
-        if hvac_mode == HVAC_MODE_COOL:
+        if hvac_mode == HVACMode.COOL:
             self._innova.set_mode(Mode.COOLING)
-        if hvac_mode == HVAC_MODE_HEAT:
+        if hvac_mode == HVACMode.HEAT:
             self._innova.set_mode(Mode.HEATING)
-        if hvac_mode == HVAC_MODE_DRY:
+        if hvac_mode == HVACMode.DRY:
             self._innova.set_mode(Mode.DEHUMIDIFICATION)
-        if hvac_mode == HVAC_MODE_FAN_ONLY:
+        if hvac_mode == HVACMode.FAN_ONLY:
             self._innova.set_mode(Mode.FAN_ONLY)
-        if hvac_mode == HVAC_MODE_AUTO:
+        if hvac_mode == HVACMode.AUTO:
             self._innova.set_mode(Mode.AUTO)
 
     def set_fan_mode(self, fan_mode: str) -> None:

@@ -26,12 +26,18 @@ Follow these steps:
   * [\_\_init\_\_.py](custom_components/innova/__init__.py)
   * [climate.py](custom_components/innova/climate.py)
   * [manifest.json](custom_components/innova/manifest.json)
+
+### Configuration
+
 * Next, in HA's configuration.yaml you would need to add this new integration
   * ``` yaml
     climate:
       - platform: innova
         host: [IP_ADDRESS_OF_INNOVA_UNIT]
-        scan_interval: 300
+        scan_interval: 1200
+      - platform: innova
+        host: [IP_ADDRESS_OF_OTHER_UNIT]
+        scan_interval: 1200
     ```
   * Where host being the IP address of your innova unit (Strongly suggested that you give it a reserved DHCP address in your router, so it never changes)
   * scan_interval is how often HA will contact the unit to retrieve its state (300s => 5 minutes)
