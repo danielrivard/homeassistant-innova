@@ -127,10 +127,10 @@ class InnovaEntity(ClimateEntity):
     @property
     def hvac_action(self):
         """Return the current state of the thermostat."""
-        mode = self._innova.mode
-
         if not self._innova.power:
             return HVACAction.OFF
+
+        mode = self._innova.mode
         if mode == Mode.HEATING:
             return HVACAction.HEATING
         if mode == Mode.COOLING:
