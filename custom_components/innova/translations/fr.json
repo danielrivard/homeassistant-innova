@@ -1,0 +1,19 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "L'unité est déjà configurée"
+        },
+        "error": {
+            "cannot_connect": "Échec de connexion",
+            "invalid_auth": "Authentification invalide",
+            "unknown": "Erreur inattendue"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Hôte"
+                }
+            }
+        }
+    }
+}
