@@ -1,4 +1,4 @@
-"""Support for Innova 2.0 Heat Pump."""
+"""Entity definition for Innova 2.0 HVAC."""
 from __future__ import annotations
 
 import homeassistant.helpers.config_validation as cv
@@ -87,6 +87,10 @@ class InnovaEntity(ClimateEntity):
             manufacturer=MANUFACTURER,
             sw_version=self._version,
         )
+
+    @property
+    def icon(self) -> str | None:
+        return "mdi:hvac"
 
     @property
     def name(self):
