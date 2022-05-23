@@ -29,6 +29,30 @@ Follow these steps:
 
 ### Configuration
 
+#### From UI
+This integration can be configured from the HA UI. You may need a hard refresh in your browser if you just installed the component.
+
+##### Go to Settings -> Devices & Services
+
+<img src="https://user-images.githubusercontent.com/2893453/169904177-26647057-da76-4aea-b69b-54ffc736fe0c.png" width="400"/>
+
+##### Then Add Integrations
+<img src="https://user-images.githubusercontent.com/2893453/169904299-b64b0d2b-889c-4efe-b9de-46f64d0fe210.png" width="300"/>
+
+##### Search for Innova
+![image](https://user-images.githubusercontent.com/2893453/169904659-202e9d07-19ca-4b98-a30c-d83678394221.png)
+
+##### Configure the IP Address and optionally the area 
+![image](https://user-images.githubusercontent.com/2893453/169904756-59319900-ce0c-41ec-8fdd-66861758b090.png)
+![image](https://user-images.githubusercontent.com/2893453/169904861-43500d8f-3365-459c-b9e7-f3fd7efe5bd9.png)
+##### That's it, you now have an Innova device and entity configured
+![image](https://user-images.githubusercontent.com/2893453/169904968-11df645f-d3c1-4000-9219-6fd9ac8d68e8.png)
+
+<img src="https://user-images.githubusercontent.com/2893453/169905005-c2ada883-ca09-440e-9cc4-7e5a9630cb64.png" width="500"/>
+
+##### Repeat the process for multiple units
+
+#### Yaml
 * Next, in HA's configuration.yaml you would need to add this new integration
   * ``` yaml
     climate:
