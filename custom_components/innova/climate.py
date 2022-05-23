@@ -1,8 +1,8 @@
 """Entity definition for Innova 2.0 HVAC."""
 from __future__ import annotations
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
+from datetime import timedelta
+
 from homeassistant import config_entries
 from homeassistant.components.climate import (ClimateEntity,
                                               ClimateEntityFeature, HVACAction,
@@ -19,6 +19,8 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from innova_controls import Innova, Mode
 
 from .const import DOMAIN, MANUFACTURER
+
+SCAN_INTERVAL = timedelta(minutes=10)
 
 
 async def async_setup_entry(
