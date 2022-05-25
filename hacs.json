@@ -1,5 +1,4 @@
 {
     "name": "Innova 2.0 Air Conditioner Integration",
-    "domains": ["climate"],
     "homeassistant": "2022.5.0"
 }
