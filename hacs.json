@@ -1,4 +1,5 @@
 {
-    "name": "Innova 2.0 Air Conditioner Integration",
-    "homeassistant": "2022.5.0"
+    "name": "Innova 2.0 HVAC",
+    "homeassistant": "2022.5.0",
+    "country": "CA"
 }

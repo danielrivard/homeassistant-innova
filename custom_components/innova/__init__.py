@@ -4,7 +4,7 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntry
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from innova_controls import Innova
 
 from .const import DOMAIN
@@ -15,7 +15,10 @@ PLATFORMS: list[Platform] = [Platform.CLIMATE]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Innova AC from a config entry."""
     host = entry.data[CONF_HOST]
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Innova(host=host)
+    session = async_get_clientsession(hass)
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Innova(
+        http_session=session, host=host
+    )
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
 
