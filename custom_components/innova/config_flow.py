@@ -10,6 +10,7 @@ from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from innova_controls import Innova
 
 from .const import DOMAIN
@@ -31,8 +32,9 @@ async def validate_connectivity(
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
 
-    innova = Innova(data["host"])
-    if not await hass.async_add_executor_job(lambda: innova.update()):
+    session = async_get_clientsession(hass)
+    innova = Innova(http_session=session, host=data["host"])
+    if not await innova.async_update():
         raise CannotConnect
 
     # Return info that you want to store in the config entry.
