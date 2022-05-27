@@ -12,6 +12,7 @@ from homeassistant.components.climate.const import (FAN_AUTO, FAN_HIGH,
                                                     SWING_OFF, SWING_ON)
 from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -40,7 +41,8 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType = None,
 ):
     """Add entities for passed config_entry in HA."""
-    innovaApi: Innova = Innova(host=config.get("host"))
+    http_session = async_get_clientsession(hass)
+    innovaApi: Innova = Innova(http_session=http_session, host=config.get("host"))
     async_add_entities([InnovaEntity(innovaApi)], update_before_add=True)
 
 
@@ -70,9 +72,9 @@ class InnovaEntity(ClimateEntity):
         """Set up polling needed for thermostat."""
         return True
 
-    def update(self):
+    async def async_update(self):
         """Update the data from the thermostat."""
-        self._innova.update()
+        await self._innova.async_update()
         self._name = self._innova.name
         self._serial = self._innova.serial
         self._uid = self._innova.uid
@@ -218,38 +220,38 @@ class InnovaEntity(ClimateEntity):
         else:
             return SWING_OFF
 
-    def set_hvac_mode(self, hvac_mode: str) -> None:
+    async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         if hvac_mode == HVACMode.OFF:
-            self._innova.power_off()
+            await self._innova.power_off()
         if hvac_mode == HVACMode.COOL:
-            self._innova.set_mode(Mode.COOLING)
+            await self._innova.set_mode(Mode.COOLING)
         if hvac_mode == HVACMode.HEAT:
-            self._innova.set_mode(Mode.HEATING)
+            await self._innova.set_mode(Mode.HEATING)
         if hvac_mode == HVACMode.DRY:
-            self._innova.set_mode(Mode.DEHUMIDIFICATION)
+            await self._innova.set_mode(Mode.DEHUMIDIFICATION)
         if hvac_mode == HVACMode.FAN_ONLY:
-            self._innova.set_mode(Mode.FAN_ONLY)
+            await self._innova.set_mode(Mode.FAN_ONLY)
         if hvac_mode == HVACMode.AUTO:
-            self._innova.set_mode(Mode.AUTO)
+            await self._innova.set_mode(Mode.AUTO)
 
-    def set_fan_mode(self, fan_mode: str) -> None:
+    async def async_set_fan_mode(self, fan_mode: str) -> None:
         if fan_mode == FAN_AUTO:
-            self._innova.set_fan_speed(0)
+            await self._innova.set_fan_speed(0)
         if fan_mode == FAN_LOW:
-            self._innova.set_fan_speed(1)
+            await self._innova.set_fan_speed(1)
         if fan_mode == FAN_MEDIUM:
-            self._innova.set_fan_speed(2)
+            await self._innova.set_fan_speed(2)
         if fan_mode == FAN_HIGH:
-            self._innova.set_fan_speed(3)
+            await self._innova.set_fan_speed(3)
 
-    def set_swing_mode(self, swing_mode: str) -> None:
+    async def async_set_swing_mode(self, swing_mode: str) -> None:
         if swing_mode == SWING_ON:
-            self._innova.rotation_on()
+            await self._innova.rotation_on()
         if swing_mode == SWING_OFF:
-            self._innova.rotation_off()
+            await self._innova.rotation_off()
 
-    def set_temperature(self, **kwargs):
+    async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
-        self._innova.set_temperature(temperature)
+        await self._innova.set_temperature(temperature)
