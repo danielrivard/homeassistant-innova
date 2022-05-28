@@ -1,4 +1,4 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 # homeassistant-innova
 
@@ -6,13 +6,17 @@ Custom Component for controlling an Innova 2.0 Heat Pump in Home Assistant
 
 ## Installation
 
-### HACS Custom Repository
+### HACS
 
-The Innova integration can be installed as an HACS custom repository.
+The Innova integration is available through [HACS](https://hacs.xyz/).
 
-Follow these [instructions](https://hacs.xyz/docs/faq/custom_repositories) from HACS.
+[Download](https://hacs.xyz/docs/setup/prerequisites) and [configure](https://hacs.xyz/docs/configuration/basic) HACS. 
 
-There is also a tutorial [here](https://codingcyclist.medium.com/how-to-install-any-custom-component-from-github-in-less-than-5-minutes-ad84e6dc56ff)
+https://peyanski.com/how-to-install-home-assistant-community-store-hacs/
+
+Once installed and configured, you can search for the Innova in HACS' integration section.
+
+From there, jump to the [configuration](#configuration) of this readme to continue setup your Innova device.
 
 ### Manual Installation
 
