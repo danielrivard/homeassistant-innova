@@ -9,7 +9,7 @@ from homeassistant.components.climate import (ClimateEntity,
                                               HVACMode)
 from homeassistant.components.climate.const import (FAN_AUTO, FAN_HIGH,
                                                     FAN_LOW, FAN_MEDIUM,
-                                                    SWING_OFF, SWING_ON, SLEEP)
+                                                    SWING_OFF, SWING_ON, PRESET_NONE, PRESET_SLEEP)
 from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -245,9 +245,9 @@ class InnovaEntity(ClimateEntity):
             await self._innova.set_mode(Mode.AUTO)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
-        if preset_mode == SLEEP:
+        if preset_mode == PRESET_SLEEP:
             await self._innova.night_mode_on()
-        else:
+        if preset_mode == PRESET_NONE:
             await self._innova.night_mode_off()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
