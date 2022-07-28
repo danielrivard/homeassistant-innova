@@ -65,6 +65,7 @@ class InnovaEntity(ClimateEntity):
             ClimateEntityFeature.TARGET_TEMPERATURE
             | ClimateEntityFeature.SWING_MODE
             | ClimateEntityFeature.FAN_MODE
+            | ClimateEntityFeature.PRESET_MODE
         )
 
     @property
@@ -195,13 +196,15 @@ class InnovaEntity(ClimateEntity):
 
     @property
     def preset_modes(self) -> list[str] | None:
-        return [SLEEP]
+        return [PRESET_NONE, PRESET_SLEEP]
 
     @property
-    def preset_mode(self) -> bool:
+    def preset_mode(self) -> str | None:
         if self._innova.night_mode == True:
-            return SLEEP
-        return False
+            return PRESET_SLEEP
+        if self._innova.night_mode == False:
+            return PRESET_NONE
+        return None
 
     @property
     def fan_modes(self) -> list[str] | None:
