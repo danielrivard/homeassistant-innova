@@ -1,2 +1,3 @@
 homeassistant==2022.9.7
 innova-controls==1.0.9
+black==22.8.0
