@@ -9,17 +9,17 @@ from innova_controls import Innova
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.CLIMATE]
+PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Innova AC from a config entry."""
     host = entry.data[CONF_HOST]
     session = async_get_clientsession(hass)
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Innova(
-        http_session=session, host=host
-    )
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    api = Innova(http_session=session, host=host)
+    await api.async_update()
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = api
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
