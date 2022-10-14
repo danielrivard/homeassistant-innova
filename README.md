@@ -27,9 +27,16 @@ Follow these steps:
 * In Home Assistant's config directory, you need to create a custom_components and an innova folder under it.
   * config/custom_components/innova
 * In this directory, you need to copy these files from this repository:
+  * [translations](custom_components/innova/translations/)
   * [\_\_init\_\_.py](custom_components/innova/__init__.py)
   * [climate.py](custom_components/innova/climate.py)
+  * [config_flow.py](custom_components/innova/config_flow.py)
+  * [const.py](custom_components/innova/const.py)
+  * [coordinator.py](custom_components/innova/coordinator.py)
+  * [device_info.py](custom_components/innova/device_info.py)
   * [manifest.json](custom_components/innova/manifest.json)
+  * [sensor.py](custom_components/innova/sensor.py)
+  * [string.json](custom_components/innova/string.json)
 
 ### Configuration
 
@@ -56,22 +63,7 @@ This integration can be configured from the HA UI. You may need a hard refresh i
 
 ##### Repeat the process for multiple units
 
-#### Yaml
-* Next, in HA's configuration.yaml you would need to add this new integration
-  * ``` yaml
-    climate:
-      - platform: innova
-        host: [IP_ADDRESS_OF_INNOVA_UNIT]
-        scan_interval: 1200
-      - platform: innova
-        host: [IP_ADDRESS_OF_OTHER_UNIT]
-        scan_interval: 1200
-    ```
-  * Where host being the IP address of your innova unit (Strongly suggested that you give it a reserved DHCP address in your router, so it never changes)
-  * scan_interval is how often HA will contact the unit to retrieve its state (300s => 5 minutes)
-    * I found that scanning too often leads to the unit stopping to respond.
-    * When a setting is changed, and the command receives a successful response, it will update the internal state of HA without needing to wait for a scan
-  * Restart Home Assistant
+##### Restart Home Assistant
 
 
-At this point you should have a new entity that can control the Innova unit.
+At this point you should have a new device with a climate entity that can control the Innova unit and a sensor entity for the current ambient temperature.
