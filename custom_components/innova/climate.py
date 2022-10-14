@@ -35,6 +35,7 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
 
     def __init__(self, coordinator: InnovaCoordinator):
         """Initialize the thermostat."""
+        super().__init__(coordinator)
         self._innova = coordinator.innova
         self._device_info = InnovaDeviceInfo(self._innova)
 

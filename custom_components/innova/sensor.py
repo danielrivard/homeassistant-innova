@@ -24,6 +24,7 @@ async def async_setup_entry(
 
 class InnovaAmbientSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator: InnovaCoordinator) -> None:
+        super().__init__(coordinator)
         self._innova = coordinator.innova
         self._device_info = InnovaDeviceInfo(self._innova)
 
