@@ -5,9 +5,10 @@ from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from innova_controls import Innova
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+from .coordinator import InnovaCoordinator
 from .device_info import InnovaDeviceInfo
 
 
@@ -17,18 +18,14 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ):
     """Add entities for passed config_entry in HA."""
-    innovaApi: Innova = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities([InnovaAmbientSensor(innovaApi)])
+    coordinator: InnovaCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities([InnovaAmbientSensor(coordinator)])
 
 
-class InnovaAmbientSensor(SensorEntity):
-    def __init__(self, innova: Innova) -> None:
-        self._innova = innova
+class InnovaAmbientSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator: InnovaCoordinator) -> None:
+        self._innova = coordinator.innova
         self._device_info = InnovaDeviceInfo(self._innova)
-
-    @property
-    def should_poll(self) -> bool:
-        return False
 
     @property
     def name(self) -> str | None:
@@ -41,7 +38,7 @@ class InnovaAmbientSensor(SensorEntity):
     @property
     def device_class(self) -> SensorDeviceClass | str | None:
         return SensorDeviceClass.TEMPERATURE
-    
+
     @property
     def native_unit_of_measurement(self) -> str | None:
         return TEMP_CELSIUS
@@ -49,7 +46,7 @@ class InnovaAmbientSensor(SensorEntity):
     @property
     def native_value(self) -> int:
         return self._innova.ambient_temp
-    
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return a device description for device registry."""
