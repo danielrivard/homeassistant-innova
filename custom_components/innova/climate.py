@@ -1,62 +1,43 @@
-"""Entity definition for Innova 2.0 HVAC."""
+"""Climate entity definition for Innova 2.0 HVAC."""
 from __future__ import annotations
-
-from datetime import timedelta
-
-from homeassistant import config_entries
 from homeassistant.components.climate import (ClimateEntity,
                                               ClimateEntityFeature, HVACAction,
                                               HVACMode)
 from homeassistant.components.climate.const import (FAN_AUTO, FAN_HIGH,
                                                     FAN_LOW, FAN_MEDIUM,
-                                                    SWING_OFF, SWING_ON, PRESET_NONE, PRESET_SLEEP)
+                                                    PRESET_NONE, PRESET_SLEEP,
+                                                    SWING_OFF, SWING_ON)
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from innova_controls import Innova, Mode
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from innova_controls import Mode
 
-from .const import DOMAIN, MANUFACTURER
-
-SCAN_INTERVAL = timedelta(minutes=10)
+from .const import DOMAIN
+from .coordinator import InnovaCoordinator
+from .device_info import InnovaDeviceInfo
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: config_entries.ConfigEntry,
+    config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ):
     """Add entities for passed config_entry in HA."""
-    innovaApi: Innova = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities([InnovaEntity(innovaApi)], update_before_add=True)
+    coordinator: InnovaCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities([InnovaEntity(coordinator)])
 
 
-async def async_setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    async_add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType = None,
-):
-    """Add entities for passed config_entry in HA."""
-    http_session = async_get_clientsession(hass)
-    innovaApi: Innova = Innova(http_session=http_session, host=config.get("host"))
-    async_add_entities([InnovaEntity(innovaApi)], update_before_add=True)
-
-
-class InnovaEntity(ClimateEntity):
+class InnovaEntity(CoordinatorEntity, ClimateEntity):
     """Representation of an Innova AC Unit controls."""
 
-    def __init__(self, innova: Innova):
+    def __init__(self, coordinator: InnovaCoordinator):
         """Initialize the thermostat."""
-        self._innova = innova
-        self._name = None
-        self._serial = None
-        self._uid = None
-        self._version = None
-        self._ip_address = None
+        super().__init__(coordinator)
+        self._innova = coordinator.innova
+        self._device_info = InnovaDeviceInfo(self._innova)
 
     @property
     def supported_features(self):
@@ -69,29 +50,9 @@ class InnovaEntity(ClimateEntity):
         )
 
     @property
-    def should_poll(self):
-        """Set up polling needed for thermostat."""
-        return True
-
-    async def async_update(self):
-        """Update the data from the thermostat."""
-        await self._innova.async_update()
-        self._name = self._innova.name
-        self._serial = self._innova.serial
-        self._uid = self._innova.uid
-        self._version = self._innova.software_version
-        self._ip_address = self._innova.ip_address
-
-    @property
     def device_info(self) -> DeviceInfo:
         """Return a device description for device registry."""
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.unique_id)},
-            name=self.name,
-            connections={(CONNECTION_NETWORK_MAC, self._uid)},
-            manufacturer=MANUFACTURER,
-            sw_version=self._version,
-        )
+        return self._device_info.device_info
 
     @property
     def icon(self) -> str | None:
@@ -100,12 +61,12 @@ class InnovaEntity(ClimateEntity):
     @property
     def name(self):
         """Return the name of the thermostat."""
-        return self._name
+        return self._device_info.name
 
     @property
     def unique_id(self):
         """Return the serial number of the system"""
-        return self._serial
+        return self._innova.serial
 
     @property
     def precision(self):
