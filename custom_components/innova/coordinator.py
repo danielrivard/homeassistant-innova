@@ -27,6 +27,6 @@ class InnovaCoordinator(DataUpdateCoordinator[Innova]):
         """
         success = await self.innova.async_update()
         if not success:
-            raise UpdateFailed("Airtouch connection issue")
+            raise UpdateFailed("Innova connection issue")
         
         return self.innova
