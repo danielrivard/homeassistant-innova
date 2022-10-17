@@ -30,14 +30,13 @@ async def async_setup_entry(
     async_add_entities([InnovaEntity(coordinator)])
 
 
-class InnovaEntity(CoordinatorEntity, ClimateEntity):
+class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     """Representation of an Innova AC Unit controls."""
 
     def __init__(self, coordinator: InnovaCoordinator):
         """Initialize the thermostat."""
         super().__init__(coordinator)
-        self._innova = coordinator.innova
-        self._device_info = InnovaDeviceInfo(self._innova)
+        self._device_info = InnovaDeviceInfo(self.coordinator.innova)
 
     @property
     def supported_features(self):
@@ -66,7 +65,7 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
     @property
     def unique_id(self):
         """Return the serial number of the system"""
-        return self._innova.serial
+        return self.coordinator.innova.serial
 
     @property
     def precision(self):
@@ -81,12 +80,12 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float:
         """Return the current temperature."""
-        return self._innova.ambient_temp
+        return self.coordinator.innova.ambient_temp
 
     @property
     def target_temperature(self):
         """Return the temperature we try to reach."""
-        return self._innova.target_temperature
+        return self.coordinator.innova.target_temperature
 
     @property
     def target_temperature_step(self) -> float | None:
@@ -95,19 +94,19 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
 
     @property
     def min_temp(self) -> float:
-        return self._innova.min_temperature
+        return self.coordinator.innova.min_temperature
 
     @property
     def max_temp(self) -> float:
-        return self._innova.max_temperature
+        return self.coordinator.innova.max_temperature
 
     @property
     def hvac_action(self):
         """Return the current state of the thermostat."""
-        if not self._innova.power:
+        if not self.coordinator.innova.power:
             return HVACAction.OFF
 
-        mode = self._innova.mode
+        mode = self.coordinator.innova.mode
         if mode == Mode.HEATING:
             return HVACAction.HEATING
         if mode == Mode.COOLING:
@@ -128,18 +127,18 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
     @property
     def hvac_mode(self):
         """Return the current state of the thermostat."""
-        if not self._innova.power:
+        if not self.coordinator.innova.power:
             return HVACMode.OFF
 
-        if self._innova.mode == Mode.COOLING:
+        if self.coordinator.innova.mode == Mode.COOLING:
             return HVACMode.COOL
-        if self._innova.mode == Mode.HEATING:
+        if self.coordinator.innova.mode == Mode.HEATING:
             return HVACMode.HEAT
-        if self._innova.mode == Mode.DEHUMIDIFICATION:
+        if self.coordinator.innova.mode == Mode.DEHUMIDIFICATION:
             return HVACMode.DRY
-        if self._innova.mode == Mode.FAN_ONLY:
+        if self.coordinator.innova.mode == Mode.FAN_ONLY:
             return HVACMode.FAN_ONLY
-        if self._innova.mode == Mode.AUTO:
+        if self.coordinator.innova.mode == Mode.AUTO:
             return HVACMode.AUTO
         return HVACMode.OFF
 
@@ -161,9 +160,9 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
 
     @property
     def preset_mode(self) -> str | None:
-        if self._innova.night_mode == True:
+        if self.coordinator.innova.night_mode == True:
             return PRESET_SLEEP
-        if self._innova.night_mode == False:
+        if self.coordinator.innova.night_mode == False:
             return PRESET_NONE
         return None
 
@@ -173,13 +172,13 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
 
     @property
     def fan_mode(self) -> str | None:
-        if self._innova.fan_speed == 0:
+        if self.coordinator.innova.fan_speed == 0:
             return FAN_AUTO
-        if self._innova.fan_speed == 1:
+        if self.coordinator.innova.fan_speed == 1:
             return FAN_LOW
-        if self._innova.fan_speed == 2:
+        if self.coordinator.innova.fan_speed == 2:
             return FAN_MEDIUM
-        if self._innova.fan_speed == 3:
+        if self.coordinator.innova.fan_speed == 3:
             return FAN_HIGH
         return None
 
@@ -189,49 +188,54 @@ class InnovaEntity(CoordinatorEntity, ClimateEntity):
 
     @property
     def swing_mode(self) -> str | None:
-        if self._innova.rotation:
+        if self.coordinator.innova.rotation:
             return SWING_ON
         else:
             return SWING_OFF
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         if hvac_mode == HVACMode.OFF:
-            await self._innova.power_off()
+            await self.coordinator.innova.power_off()
         if hvac_mode == HVACMode.COOL:
-            await self._innova.set_mode(Mode.COOLING)
+            await self.coordinator.innova.set_mode(Mode.COOLING)
         if hvac_mode == HVACMode.HEAT:
-            await self._innova.set_mode(Mode.HEATING)
+            await self.coordinator.innova.set_mode(Mode.HEATING)
         if hvac_mode == HVACMode.DRY:
-            await self._innova.set_mode(Mode.DEHUMIDIFICATION)
+            await self.coordinator.innova.set_mode(Mode.DEHUMIDIFICATION)
         if hvac_mode == HVACMode.FAN_ONLY:
-            await self._innova.set_mode(Mode.FAN_ONLY)
+            await self.coordinator.innova.set_mode(Mode.FAN_ONLY)
         if hvac_mode == HVACMode.AUTO:
-            await self._innova.set_mode(Mode.AUTO)
+            await self.coordinator.innova.set_mode(Mode.AUTO)
+        self.coordinator.async_update_listeners()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         if preset_mode == PRESET_SLEEP:
-            await self._innova.night_mode_on()
+            await self.coordinator.innova.night_mode_on()
         if preset_mode == PRESET_NONE:
-            await self._innova.night_mode_off()
+            await self.coordinator.innova.night_mode_off()
+        self.coordinator.async_update_listeners()
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         if fan_mode == FAN_AUTO:
-            await self._innova.set_fan_speed(0)
+            await self.coordinator.innova.set_fan_speed(0)
         if fan_mode == FAN_LOW:
-            await self._innova.set_fan_speed(1)
+            await self.coordinator.innova.set_fan_speed(1)
         if fan_mode == FAN_MEDIUM:
-            await self._innova.set_fan_speed(2)
+            await self.coordinator.innova.set_fan_speed(2)
         if fan_mode == FAN_HIGH:
-            await self._innova.set_fan_speed(3)
+            await self.coordinator.innova.set_fan_speed(3)
+        self.coordinator.async_update_listeners()
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         if swing_mode == SWING_ON:
-            await self._innova.rotation_on()
+            await self.coordinator.innova.rotation_on()
         if swing_mode == SWING_OFF:
-            await self._innova.rotation_off()
+            await self.coordinator.innova.rotation_off()
+        self.coordinator.async_update_listeners()
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
-        await self._innova.set_temperature(temperature)
+        await self.coordinator.innova.set_temperature(temperature)
+        self.coordinator.async_update_listeners()
