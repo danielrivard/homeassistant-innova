@@ -1,2 +1,2 @@
-homeassistant==2022.12.8
+homeassistant==2022.12.9
 innova-controls==1.0.10
