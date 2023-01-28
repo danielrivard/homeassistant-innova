@@ -203,15 +203,15 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if hvac_mode == HVACMode.OFF:
             await self.coordinator.innova.power_off()
         if hvac_mode == HVACMode.COOL:
-            await self.coordinator.innova.set_mode(Mode.COOLING)
+            await self.coordinator.innova.set_mode(TwoPointZero.Mode.COOLING)
         if hvac_mode == HVACMode.HEAT:
-            await self.coordinator.innova.set_mode(Mode.HEATING)
+            await self.coordinator.innova.set_mode(TwoPointZero.Mode.HEATING)
         if hvac_mode == HVACMode.DRY:
-            await self.coordinator.innova.set_mode(Mode.DEHUMIDIFICATION)
+            await self.coordinator.innova.set_mode(TwoPointZero.Mode.DEHUMIDIFICATION)
         if hvac_mode == HVACMode.FAN_ONLY:
-            await self.coordinator.innova.set_mode(Mode.FAN_ONLY)
+            await self.coordinator.innova.set_mode(TwoPointZero.Mode.FAN_ONLY)
         if hvac_mode == HVACMode.AUTO:
-            await self.coordinator.innova.set_mode(Mode.AUTO)
+            await self.coordinator.innova.set_mode(TwoPointZero.Mode.AUTO)
         self.coordinator.async_update_listeners()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
