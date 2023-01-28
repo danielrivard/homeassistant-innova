@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from innova_controls import Mode
+from innova_controls.twopointzero import TwoPointZero
 
 from .const import DOMAIN
 from .coordinator import InnovaCoordinator
@@ -107,15 +107,21 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
             return HVACAction.OFF
 
         mode = self.coordinator.innova.mode
-        if mode == Mode.HEATING:
-            return HVACAction.HEATING
-        if mode == Mode.COOLING:
-            return HVACAction.COOLING
-        if mode == Mode.DEHUMIDIFICATION:
+        if mode == TwoPointZero.Mode.HEATING:
+            if self.current_temperature <= self.target_temperature:
+                return HVACAction.HEATING
+            else:
+                return HVACAction.IDLE
+        if mode == TwoPointZero.Mode.COOLING:
+            if self.current_temperature >= self.target_temperature:
+                return HVACAction.COOLING
+            else:
+                return HVACAction.IDLE
+        if mode == TwoPointZero.Mode.DEHUMIDIFICATION:
             return HVACAction.DRYING
-        if mode == Mode.FAN_ONLY:
+        if mode == TwoPointZero.Mode.FAN_ONLY:
             return HVACAction.FAN
-        if mode == Mode.AUTO:
+        if mode == TwoPointZero.Mode.AUTO:
             if self.current_temperature > self.target_temperature + 1:
                 return HVACAction.COOLING
             elif self.current_temperature < self.target_temperature - 1:
@@ -130,15 +136,15 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if not self.coordinator.innova.power:
             return HVACMode.OFF
 
-        if self.coordinator.innova.mode == Mode.COOLING:
+        if self.coordinator.innova.mode == TwoPointZero.Mode.COOLING:
             return HVACMode.COOL
-        if self.coordinator.innova.mode == Mode.HEATING:
+        if self.coordinator.innova.mode == TwoPointZero.Mode.HEATING:
             return HVACMode.HEAT
-        if self.coordinator.innova.mode == Mode.DEHUMIDIFICATION:
+        if self.coordinator.innova.mode == TwoPointZero.Mode.DEHUMIDIFICATION:
             return HVACMode.DRY
-        if self.coordinator.innova.mode == Mode.FAN_ONLY:
+        if self.coordinator.innova.mode == TwoPointZero.Mode.FAN_ONLY:
             return HVACMode.FAN_ONLY
-        if self.coordinator.innova.mode == Mode.AUTO:
+        if self.coordinator.innova.mode == TwoPointZero.Mode.AUTO:
             return HVACMode.AUTO
         return HVACMode.OFF
 

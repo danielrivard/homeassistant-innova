@@ -1,6 +1,6 @@
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.entity import DeviceInfo
-from innova_controls import Innova
+from innova_controls.innova import Innova
 
 from .const import DOMAIN, MANUFACTURER
 

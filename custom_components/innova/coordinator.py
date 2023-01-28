@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from innova_controls import Innova
+from innova_controls.innova import Innova
 
 
 class InnovaCoordinator(DataUpdateCoordinator[Innova]):
