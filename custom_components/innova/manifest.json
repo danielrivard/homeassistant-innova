@@ -6,7 +6,7 @@
   "documentation": "https://github.com/danielrivard/homeassistant-innova/blob/main/README.md",
   "issue_tracker": "https://github.com/danielrivard/homeassistant-innova/issues",
   "requirements": [
-    "innova-controls==2.0.7"
+    "innova-controls==2.1.0"
   ],
   "codeowners": [
     "@danielrivard"

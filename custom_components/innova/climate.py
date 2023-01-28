@@ -16,11 +16,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from innova_controls.fan_speed import FanSpeed
 from innova_controls.mode import Mode
 
 from .const import DOMAIN
 from .coordinator import InnovaCoordinator
 from .device_info import InnovaDeviceInfo
+
+FAN_MAPPINGS = {
+    FanSpeed.AUTO: FAN_AUTO,
+    FanSpeed.LOW: FAN_LOW,
+    FanSpeed.MEDIUM: FAN_MEDIUM,
+    FanSpeed.HIGH: FAN_HIGH,
+}
 
 
 async def async_setup_entry(
@@ -194,18 +202,16 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     @property
     def fan_modes(self) -> list[str] | None:
-        return [FAN_AUTO, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
+        modes = []
+        for fan in self.coordinator.innova.supported_fan_speeds:
+            modes.append(FAN_MAPPINGS[fan])
+        return modes
 
     @property
     def fan_mode(self) -> str | None:
-        if self.coordinator.innova.fan_speed == 0:
-            return FAN_AUTO
-        if self.coordinator.innova.fan_speed == 1:
-            return FAN_LOW
-        if self.coordinator.innova.fan_speed == 2:
-            return FAN_MEDIUM
-        if self.coordinator.innova.fan_speed == 3:
-            return FAN_HIGH
+        current_mode = self.coordinator.innova.fan_speed
+        if current_mode in FAN_MAPPINGS:
+            return FAN_MAPPINGS[current_mode]
         return None
 
     @property
@@ -243,13 +249,13 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         if fan_mode == FAN_AUTO:
-            await self.coordinator.innova.set_fan_speed(0)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.AUTO)
         if fan_mode == FAN_LOW:
-            await self.coordinator.innova.set_fan_speed(1)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.LOW)
         if fan_mode == FAN_MEDIUM:
-            await self.coordinator.innova.set_fan_speed(2)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.MEDIUM)
         if fan_mode == FAN_HIGH:
-            await self.coordinator.innova.set_fan_speed(3)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.HIGH)
         self.coordinator.async_update_listeners()
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
