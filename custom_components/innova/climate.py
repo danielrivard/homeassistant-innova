@@ -9,7 +9,9 @@ from homeassistant.components.climate.const import (FAN_AUTO, FAN_HIGH,
                                                     PRESET_NONE, PRESET_SLEEP,
                                                     SWING_OFF, SWING_ON)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, TEMP_CELSIUS
+from homeassistant.const import (ATTR_TEMPERATURE, PRECISION_HALVES,
+                                 PRECISION_TENTHS, PRECISION_WHOLE,
+                                 TEMP_CELSIUS)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -42,12 +44,18 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return (
-            ClimateEntityFeature.TARGET_TEMPERATURE
-            | ClimateEntityFeature.SWING_MODE
-            | ClimateEntityFeature.FAN_MODE
-            | ClimateEntityFeature.PRESET_MODE
-        )
+        features: int = 0
+
+        if self.coordinator.innova.supports_target_temp:
+            features |= ClimateEntityFeature.TARGET_TEMPERATURE
+        if self.coordinator.innova.supports_swing:
+            features |= ClimateEntityFeature.SWING_MODE
+        if self.coordinator.innova.supports_fan:
+            features |= ClimateEntityFeature.FAN_MODE
+        if self.coordinator.innova.supports_preset:
+            features |= ClimateEntityFeature.PRESET_MODE
+
+        return features
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -71,7 +79,12 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def precision(self):
         """Return the precision of the system."""
-        return PRECISION_WHOLE
+        if self.coordinator.innova.temperature_step == 0.1:
+            return PRECISION_TENTHS
+        elif self.coordinator.innova.temperature_step == 0.5:
+            return PRECISION_HALVES
+        else:
+            return PRECISION_WHOLE
 
     @property
     def temperature_unit(self):
@@ -91,7 +104,7 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def target_temperature_step(self) -> float | None:
         """Return the temperature step by which it can be increased/decreased."""
-        return 1.0
+        return self.coordinator.innova.temperature_step
 
     @property
     def min_temp(self) -> float:
