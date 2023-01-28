@@ -122,12 +122,12 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
         mode = self.coordinator.innova.mode
         if mode.is_heating:
-            if self.current_temperature <= self.target_temperature:
+            if self.current_temperature < self.target_temperature:
                 return HVACAction.HEATING
             else:
                 return HVACAction.IDLE
         if mode.is_cooling:
-            if self.current_temperature >= self.target_temperature:
+            if self.current_temperature > self.target_temperature:
                 return HVACAction.COOLING
             else:
                 return HVACAction.IDLE
