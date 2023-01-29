@@ -2,7 +2,7 @@
 
 # homeassistant-innova
 
-Custom Component for controlling an Innova 2.0 Heat Pump in Home Assistant
+Custom Component for controlling some Innova Heat and A/C products through [Home Assistant](https://www.home-assistant.io/) ([2.0](https://www.innovaenergie.com/prodotti/climatizzatore-senza-unita-esterna/2.0-verticale/) and [AirLeaf](https://www.innovaenergie.com/prodotti/fancoils/airleaf/) currently supported)
 
 ## Installation
 
