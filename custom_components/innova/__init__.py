@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from innova_controls import Innova
+from innova_controls.innova import Innova
 
 from .const import DOMAIN, SCAN_INTERVAL
 from .coordinator import InnovaCoordinator

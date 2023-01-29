@@ -1,5 +1,6 @@
 """Climate entity definition for Innova 2.0 HVAC."""
 from __future__ import annotations
+
 from homeassistant.components.climate import (ClimateEntity,
                                               ClimateEntityFeature, HVACAction,
                                               HVACMode)
@@ -8,16 +9,26 @@ from homeassistant.components.climate.const import (FAN_AUTO, FAN_HIGH,
                                                     PRESET_NONE, PRESET_SLEEP,
                                                     SWING_OFF, SWING_ON)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, PRECISION_WHOLE, TEMP_CELSIUS
+from homeassistant.const import (ATTR_TEMPERATURE, PRECISION_HALVES,
+                                 PRECISION_TENTHS, PRECISION_WHOLE,
+                                 TEMP_CELSIUS)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from innova_controls import Mode
+from innova_controls.fan_speed import FanSpeed
+from innova_controls.mode import Mode
 
 from .const import DOMAIN
 from .coordinator import InnovaCoordinator
 from .device_info import InnovaDeviceInfo
+
+FAN_MAPPINGS = {
+    FanSpeed.AUTO: FAN_AUTO,
+    FanSpeed.LOW: FAN_LOW,
+    FanSpeed.MEDIUM: FAN_MEDIUM,
+    FanSpeed.HIGH: FAN_HIGH,
+}
 
 
 async def async_setup_entry(
@@ -41,12 +52,18 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return (
-            ClimateEntityFeature.TARGET_TEMPERATURE
-            | ClimateEntityFeature.SWING_MODE
-            | ClimateEntityFeature.FAN_MODE
-            | ClimateEntityFeature.PRESET_MODE
-        )
+        features: int = 0
+
+        if self.coordinator.innova.supports_target_temp:
+            features |= ClimateEntityFeature.TARGET_TEMPERATURE
+        if self.coordinator.innova.supports_swing:
+            features |= ClimateEntityFeature.SWING_MODE
+        if self.coordinator.innova.supports_fan:
+            features |= ClimateEntityFeature.FAN_MODE
+        if self.coordinator.innova.supports_preset:
+            features |= ClimateEntityFeature.PRESET_MODE
+
+        return features
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -70,7 +87,12 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def precision(self):
         """Return the precision of the system."""
-        return PRECISION_WHOLE
+        if self.coordinator.innova.temperature_step == 0.1:
+            return PRECISION_TENTHS
+        elif self.coordinator.innova.temperature_step == 0.5:
+            return PRECISION_HALVES
+        else:
+            return PRECISION_WHOLE
 
     @property
     def temperature_unit(self):
@@ -90,7 +112,7 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def target_temperature_step(self) -> float | None:
         """Return the temperature step by which it can be increased/decreased."""
-        return 1.0
+        return self.coordinator.innova.temperature_step
 
     @property
     def min_temp(self) -> float:
@@ -107,15 +129,21 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
             return HVACAction.OFF
 
         mode = self.coordinator.innova.mode
-        if mode == Mode.HEATING:
-            return HVACAction.HEATING
-        if mode == Mode.COOLING:
-            return HVACAction.COOLING
-        if mode == Mode.DEHUMIDIFICATION:
+        if mode.is_heating:
+            if self.current_temperature < self.target_temperature:
+                return HVACAction.HEATING
+            else:
+                return HVACAction.IDLE
+        if mode.is_cooling:
+            if self.current_temperature > self.target_temperature:
+                return HVACAction.COOLING
+            else:
+                return HVACAction.IDLE
+        if mode.is_dehumidifying:
             return HVACAction.DRYING
-        if mode == Mode.FAN_ONLY:
+        if mode.is_fan_only:
             return HVACAction.FAN
-        if mode == Mode.AUTO:
+        if mode.is_auto:
             if self.current_temperature > self.target_temperature + 1:
                 return HVACAction.COOLING
             elif self.current_temperature < self.target_temperature - 1:
@@ -130,29 +158,35 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if not self.coordinator.innova.power:
             return HVACMode.OFF
 
-        if self.coordinator.innova.mode == Mode.COOLING:
+        if self.coordinator.innova.mode.is_cooling:
             return HVACMode.COOL
-        if self.coordinator.innova.mode == Mode.HEATING:
+        if self.coordinator.innova.mode.is_heating:
             return HVACMode.HEAT
-        if self.coordinator.innova.mode == Mode.DEHUMIDIFICATION:
+        if self.coordinator.innova.mode.is_dehumidifying:
             return HVACMode.DRY
-        if self.coordinator.innova.mode == Mode.FAN_ONLY:
+        if self.coordinator.innova.mode.is_fan_only:
             return HVACMode.FAN_ONLY
-        if self.coordinator.innova.mode == Mode.AUTO:
-            return HVACMode.AUTO
+        if self.coordinator.innova.mode.is_auto:
+            return HVACMode.HEAT_COOL
         return HVACMode.OFF
 
     @property
     def hvac_modes(self):
         """Return available HVAC modes."""
-        return [
-            HVACMode.OFF,
-            HVACMode.COOL,
-            HVACMode.HEAT,
-            HVACMode.DRY,
-            HVACMode.FAN_ONLY,
-            HVACMode.AUTO,
-        ]
+        modes = [HVACMode.OFF]
+        mode: Mode
+        for mode in self.coordinator.innova.supported_modes:
+            if mode.is_cooling:
+                modes.append(HVACMode.COOL)
+            elif mode.is_heating:
+                modes.append(HVACMode.HEAT)
+            elif mode.is_dehumidifying:
+                modes.append(HVACMode.DRY)
+            elif mode.is_fan_only:
+                modes.append(HVACMode.FAN_ONLY)
+            elif mode.is_auto:
+                modes.append(HVACMode.HEAT_COOL)
+        return modes
 
     @property
     def preset_modes(self) -> list[str] | None:
@@ -168,18 +202,16 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     @property
     def fan_modes(self) -> list[str] | None:
-        return [FAN_AUTO, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
+        modes = []
+        for fan in self.coordinator.innova.supported_fan_speeds:
+            modes.append(FAN_MAPPINGS[fan])
+        return modes
 
     @property
     def fan_mode(self) -> str | None:
-        if self.coordinator.innova.fan_speed == 0:
-            return FAN_AUTO
-        if self.coordinator.innova.fan_speed == 1:
-            return FAN_LOW
-        if self.coordinator.innova.fan_speed == 2:
-            return FAN_MEDIUM
-        if self.coordinator.innova.fan_speed == 3:
-            return FAN_HIGH
+        current_mode = self.coordinator.innova.fan_speed
+        if current_mode in FAN_MAPPINGS:
+            return FAN_MAPPINGS[current_mode]
         return None
 
     @property
@@ -197,15 +229,15 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if hvac_mode == HVACMode.OFF:
             await self.coordinator.innova.power_off()
         if hvac_mode == HVACMode.COOL:
-            await self.coordinator.innova.set_mode(Mode.COOLING)
+            await self.coordinator.innova.set_cooling()
         if hvac_mode == HVACMode.HEAT:
-            await self.coordinator.innova.set_mode(Mode.HEATING)
+            await self.coordinator.innova.set_heating()
         if hvac_mode == HVACMode.DRY:
-            await self.coordinator.innova.set_mode(Mode.DEHUMIDIFICATION)
+            await self.coordinator.innova.set_dehumidifying()
         if hvac_mode == HVACMode.FAN_ONLY:
-            await self.coordinator.innova.set_mode(Mode.FAN_ONLY)
-        if hvac_mode == HVACMode.AUTO:
-            await self.coordinator.innova.set_mode(Mode.AUTO)
+            await self.coordinator.innova.set_fan_only()
+        if hvac_mode == HVACMode.HEAT_COOL:
+            await self.coordinator.innova.set_auto()
         self.coordinator.async_update_listeners()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
@@ -217,13 +249,13 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         if fan_mode == FAN_AUTO:
-            await self.coordinator.innova.set_fan_speed(0)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.AUTO)
         if fan_mode == FAN_LOW:
-            await self.coordinator.innova.set_fan_speed(1)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.LOW)
         if fan_mode == FAN_MEDIUM:
-            await self.coordinator.innova.set_fan_speed(2)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.MEDIUM)
         if fan_mode == FAN_HIGH:
-            await self.coordinator.innova.set_fan_speed(3)
+            await self.coordinator.innova.set_fan_speed(FanSpeed.HIGH)
         self.coordinator.async_update_listeners()
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
