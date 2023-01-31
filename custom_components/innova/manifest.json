@@ -1,12 +1,12 @@
 {
   "domain": "innova",
   "name": "Innova",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "config_flow": true,
   "documentation": "https://github.com/danielrivard/homeassistant-innova/blob/main/README.md",
   "issue_tracker": "https://github.com/danielrivard/homeassistant-innova/issues",
   "requirements": [
-    "innova-controls==2.1.0"
+    "innova-controls==2.1.2"
   ],
   "codeowners": [
     "@danielrivard"
