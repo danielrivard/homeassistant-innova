@@ -15,8 +15,11 @@ class InnovaDeviceInfo:
     @property
     def device_info(self) -> DeviceInfo:
         """Provides a device specific attributes."""
+        newSerial = self._innova.serial
+        if not newSerial:
+            newSerial = self._innova.uid        
         return DeviceInfo(
-            identifiers={(DOMAIN, self._innova.serial)},
+            identifiers={(DOMAIN, newSerial)},
             name=self._innova.name,
             connections={(CONNECTION_NETWORK_MAC, self._innova.uid)},
             manufacturer=MANUFACTURER,
