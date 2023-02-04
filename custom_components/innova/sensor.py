@@ -66,10 +66,7 @@ class InnovaAmbientSensor(InnovaTemperatureSensor):
 
     @property
     def unique_id(self) -> str | None:
-        if self._innova.serial:
-            return f"{self._innova.serial}-{self.device_class}"
-        else:
-            return f"{self._innova.uid}-{self.device_class}"
+        return f"{self._device_info.unique_id}-{self.device_class}"
 
 
 class InnovaWaterSensor(InnovaTemperatureSensor):
@@ -86,7 +83,4 @@ class InnovaWaterSensor(InnovaTemperatureSensor):
 
     @property
     def unique_id(self) -> str | None:
-        if self._innova.serial:
-            return f"{self._innova.serial}-water-{self.device_class}"
-        else:
-            return f"{self._innova.uid}-water-{self.device_class}"
+        return f"{self._device_info.unique_id}-water-{self.device_class}"
