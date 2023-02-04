@@ -81,8 +81,8 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     @property
     def unique_id(self):
-        """Return the serial number of the system"""
-        return self.coordinator.innova.serial
+        """Return the unique id of the unit"""
+        return self._device_info.unique_id
 
     @property
     def precision(self):
