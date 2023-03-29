@@ -24,6 +24,7 @@ class InnovaDeviceInfo:
             connections={(CONNECTION_NETWORK_MAC, self._innova.uid)},
             manufacturer=MANUFACTURER,
             sw_version=self._innova.software_version,
+            model=self._innova.model,
         )
 
     @property
