@@ -12,7 +12,7 @@ from innova_controls.innova import Innova
 from .const import DOMAIN, SCAN_INTERVAL
 from .coordinator import InnovaCoordinator
 
-PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR, Platform.SWITCH]
 
 _LOGGER = logging.getLogger(__name__)
 
