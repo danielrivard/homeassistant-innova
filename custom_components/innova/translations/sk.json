@@ -1,0 +1,19 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Zeriadenia je už konfigurované"
+        },
+        "error": {
+            "cannot_connect": "Nepodarilo sa pripojiť",
+            "invalid_auth": "Neplatné overenie",
+            "unknown": "Neočakávaná chyba"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Host"
+                }
+            }
+        }
+    }
+}
