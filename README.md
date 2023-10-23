@@ -1,5 +1,8 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
+![image](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.innova.total)
+
+
 # homeassistant-innova
 
 Custom Component for controlling some Innova Heat and A/C products through [Home Assistant](https://www.home-assistant.io/) ([2.0](https://www.innovaenergie.com/prodotti/climatizzatore-senza-unita-esterna/2.0-verticale/) and [AirLeaf](https://www.innovaenergie.com/prodotti/fancoils/airleaf/) currently supported)
