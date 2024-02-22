@@ -63,6 +63,10 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if self.coordinator.innova.supports_preset:
             features |= ClimateEntityFeature.PRESET_MODE
 
+        features |= ClimateEntityFeature.TURN_ON
+        features |= ClimateEntityFeature.TURN_OFF
+        self._enable_turn_on_off_backwards_compatibility = False
+
         return features
 
     @property
@@ -270,4 +274,12 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
         await self.coordinator.innova.set_temperature(temperature)
+        self.coordinator.async_update_listeners()
+
+    async def async_turn_on(self) -> None:
+        await self.coordinator.innova.power_on()
+        self.coordinator.async_update_listeners()
+
+    async def async_turn_off(self) -> None:
+        await self.coordinator.innova.power_off()
         self.coordinator.async_update_listeners()
