@@ -46,6 +46,7 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     def __init__(self, coordinator: InnovaCoordinator):
         """Initialize the thermostat."""
+        self._enable_turn_on_off_backwards_compatibility = False
         super().__init__(coordinator)
         self._device_info = InnovaDeviceInfo(self.coordinator.innova)
 
@@ -65,7 +66,6 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
         features |= ClimateEntityFeature.TURN_ON
         features |= ClimateEntityFeature.TURN_OFF
-        self._enable_turn_on_off_backwards_compatibility = False
 
         return features
 
