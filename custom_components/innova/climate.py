@@ -178,7 +178,6 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     def hvac_modes(self):
         """Return available HVAC modes."""
         modes = [HVACMode.OFF]
-        mode: Mode
         for mode in self.coordinator.innova.supported_modes:
             if mode.is_cooling:
                 modes.append(HVACMode.COOL)
@@ -206,10 +205,7 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
 
     @property
     def fan_modes(self) -> list[str] | None:
-        modes = []
-        for fan in self.coordinator.innova.supported_fan_speeds:
-            modes.append(FAN_MAPPINGS[fan])
-        return modes
+        return [FAN_MAPPINGS[fan] for fan in self.coordinator.innova.supported_fan_speeds]
 
     @property
     def fan_mode(self) -> str | None:

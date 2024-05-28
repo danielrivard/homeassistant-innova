@@ -12,7 +12,7 @@
     "innova"
   ],
   "requirements": [
-    "innova-controls==2.2.1"
+    "innova-controls==2.2.2"
   ],
-  "version": "1.4.5"
+  "version": "1.4.6"
 }
