@@ -15,15 +15,19 @@ class InnovaCoordinator(DataUpdateCoordinator[Innova]):
         name: str,
         update_interval: timedelta,
     ):
+        """Initialize the Innova Coordinator."""
         self.innova = innova
+
+        # Fetch the user-configurable update_interval in seconds from Home Assistant's data, or default to 300 seconds (5 minutes)
+        interval_in_seconds = hass.data.get("innova_update_interval_seconds", 300)
+        update_interval = timedelta(seconds=interval_in_seconds)
 
         super().__init__(hass, logger, name=name, update_interval=update_interval)
 
     async def _async_update_data(self) -> Innova:
-        """Fetch data from API endpoint.
+        """Fetch data from the API endpoint.
 
-        This is the place to pre-process the data to lookup tables
-        so entities can quickly look up their data.
+        This is the place to pre-process the data for lookup tables so entities can quickly look up their data.
         """
         success = await self.innova.async_update()
         if not success:

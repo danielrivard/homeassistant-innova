@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
@@ -9,8 +10,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from innova_controls.innova import Innova
 
-from .const import DOMAIN, SCAN_INTERVAL
+from .const import DOMAIN
 from .coordinator import InnovaCoordinator
+from .options_flow import InnovaOptionsFlowHandler
 
 PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR, Platform.SWITCH]
 
@@ -43,11 +45,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def create_coordinator(hass: HomeAssistant, api: Innova) -> InnovaCoordinator:
+    # Use the update interval in seconds if set in hass.data, or default to 600 seconds (10 minutes)
+    update_interval_seconds = hass.data.get("innova_update_interval_seconds", 600)
     coordinator = InnovaCoordinator(
         hass,
         api,
         _LOGGER,
         name=DOMAIN,
-        update_interval=SCAN_INTERVAL
+        update_interval=timedelta(seconds=update_interval_seconds)
     )
     return coordinator
