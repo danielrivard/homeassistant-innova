@@ -18,10 +18,6 @@ class InnovaCoordinator(DataUpdateCoordinator[Innova]):
         """Initialize the Innova Coordinator."""
         self.innova = innova
 
-        # Fetch the user-configurable update_interval in seconds from Home Assistant's data, or default to 300 seconds (5 minutes)
-        interval_in_seconds = hass.data.get("innova_update_interval_seconds", 300)
-        update_interval = timedelta(seconds=interval_in_seconds)
-
         super().__init__(hass, logger, name=name, update_interval=update_interval)
 
     async def _async_update_data(self) -> Innova:

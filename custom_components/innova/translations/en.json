@@ -13,6 +13,11 @@
                 "data": {
                     "host": "Host"
                 }
+            },
+            "init": {
+                "data": {
+                    "update_interval_seconds": "Update Interval (seconds)"
+                }
             }
         }
     }

@@ -2,7 +2,7 @@ from homeassistant import config_entries
 import voluptuous as vol
 from datetime import timedelta
 
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 
 class InnovaOptionsFlowHandler(config_entries.OptionsFlow):
@@ -17,8 +17,8 @@ class InnovaOptionsFlowHandler(config_entries.OptionsFlow):
             self.hass.data["innova_update_interval_seconds"] = user_input["update_interval_seconds"]
             return self.async_create_entry(title="", data=user_input)
 
-        # Default to 300 seconds (5 minutes) if not set
-        current_interval = self.config_entry.options.get("update_interval_seconds", 300)
+        # Default to DEFAULT_SCAN_INTERVAL if not set
+        current_interval = self.config_entry.options.get("update_interval_seconds", DEFAULT_SCAN_INTERVAL)
 
         # Define the form schema for the update interval in seconds
         schema = vol.Schema(

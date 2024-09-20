@@ -13,6 +13,11 @@
                 "data": {
                     "host": "Hôte"
                 }
+            },
+            "init": {
+                "data": {
+                    "update_interval_seconds": "Intervalle de mise à jour (secondes)"
+                }
             }
         }
     }
