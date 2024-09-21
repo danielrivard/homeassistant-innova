@@ -61,8 +61,11 @@ async def _async_options_updated(hass: HomeAssistant, entry: ConfigEntry) -> Non
     # Trigger an immediate refresh of the entities
     await coordinator.async_refresh()
 
-    # Recreate entities to ensure they are updated with the new polling interval
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    # Unload the existing platforms
+    await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+    # Recreate entities by setting up platforms again
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
 
 async def _async_update_coordinator(hass: HomeAssistant, entry: ConfigEntry, api: Innova):
