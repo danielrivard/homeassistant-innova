@@ -1,19 +1,34 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "L'unité est déjà configurée"
+      "abort": {
+        "already_configured": "L'unité est déjà configurée"
+      },
+      "error": {
+        "cannot_connect": "Échec de connexion",
+        "invalid_auth": "Authentification invalide",
+        "unknown": "Erreur inattendue"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "host": "Hôte"
+          }
         },
-        "error": {
-            "cannot_connect": "Échec de connexion",
-            "invalid_auth": "Authentification invalide",
-            "unknown": "Erreur inattendue"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "host": "Hôte"
-                }
-            }
+        "init": {
+          "data": {
+            "scan_interval": "Définir l'intervalle d'analyse (en secondes)"
+          }
         }
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "scan_interval": "Intervalle d'analyse (secondes)"
+          }
+        }
+      }
     }
-}
+  }
+  

@@ -7,13 +7,14 @@ from typing import Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from innova_controls.innova import Innova
 
 from .const import DOMAIN
+from .options_flow import InnovaOptionsFlowHandler
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,15 +29,13 @@ async def validate_connectivity(
     hass: HomeAssistant, data: dict[str, Any]
 ) -> dict[str, Any]:
     """Validate the user input allows us to connect.
-
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
+    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user."""
 
     session = async_get_clientsession(hass)
     innova = Innova(http_session=session, host=data["host"])
     if not await innova.async_update():
         raise CannotConnect
-
+    
     # Return info that you want to store in the config entry.
     return {"title": data["host"]}
 
@@ -72,6 +71,12 @@ class InnovaCreateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Get the options flow for this handler."""
+        return InnovaOptionsFlowHandler(config_entry)
 
 
 class CannotConnect(HomeAssistantError):
