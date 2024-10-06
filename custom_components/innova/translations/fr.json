@@ -16,7 +16,7 @@
         },
         "init": {
           "data": {
-            "scan_interval": "Définir l'intervalle d'analyse (en secondes)"
+            "scan_interval": "Définir l'intervalle de mise à jour (en secondes)"
           }
         }
       }
@@ -25,7 +25,7 @@
       "step": {
         "init": {
           "data": {
-            "scan_interval": "Intervalle d'analyse (secondes)"
+            "scan_interval": "Intervalle de mise à jour (secondes)"
           }
         }
       }
