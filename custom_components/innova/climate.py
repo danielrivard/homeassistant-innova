@@ -91,12 +91,7 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
     @property
     def precision(self):
         """Return the precision of the system."""
-        if self.coordinator.innova.temperature_step == 0.1:
-            return PRECISION_TENTHS
-        elif self.coordinator.innova.temperature_step == 0.5:
-            return PRECISION_HALVES
-        else:
-            return PRECISION_WHOLE
+        return PRECISION_TENTHS
 
     @property
     def temperature_unit(self):
