@@ -6,10 +6,6 @@ from .const import DEFAULT_SCAN_INTERVAL
 class InnovaOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for Innova integration."""
 
-    def __init__(self, config_entry):
-        """Initialize the options flow."""
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
