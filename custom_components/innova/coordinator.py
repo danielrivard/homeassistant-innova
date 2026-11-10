@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from innova_controls.innova import Innova
 
@@ -30,3 +31,9 @@ class InnovaCoordinator(DataUpdateCoordinator[Innova]):
             raise UpdateFailed("Innova connection issue")
         
         return self.innova
+
+    def async_handle_command(self, success: bool) -> None:
+        """Raise when the unit did not confirm a command, else update entities."""
+        if not success:
+            raise HomeAssistantError(f"Failed to send command to {self.innova.name}")
+        self.async_update_listeners()
