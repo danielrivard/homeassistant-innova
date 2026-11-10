@@ -221,56 +221,60 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
             return SWING_OFF
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
+        success = False
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.innova.power_off()
+            success = await self.coordinator.innova.power_off()
         if hvac_mode == HVACMode.COOL:
-            await self.coordinator.innova.set_cooling()
+            success = await self.coordinator.innova.set_cooling()
         if hvac_mode == HVACMode.HEAT:
-            await self.coordinator.innova.set_heating()
+            success = await self.coordinator.innova.set_heating()
         if hvac_mode == HVACMode.DRY:
-            await self.coordinator.innova.set_dehumidifying()
+            success = await self.coordinator.innova.set_dehumidifying()
         if hvac_mode == HVACMode.FAN_ONLY:
-            await self.coordinator.innova.set_fan_only()
+            success = await self.coordinator.innova.set_fan_only()
         if hvac_mode == HVACMode.HEAT_COOL:
-            await self.coordinator.innova.set_auto()
-        self.coordinator.async_update_listeners()
+            success = await self.coordinator.innova.set_auto()
+        self.coordinator.async_handle_command(success)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
+        success = False
         if preset_mode == PRESET_SLEEP:
-            await self.coordinator.innova.night_mode_on()
+            success = await self.coordinator.innova.night_mode_on()
         if preset_mode == PRESET_NONE:
-            await self.coordinator.innova.night_mode_off()
-        self.coordinator.async_update_listeners()
+            success = await self.coordinator.innova.night_mode_off()
+        self.coordinator.async_handle_command(success)
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
+        success = False
         if fan_mode == FAN_AUTO:
-            await self.coordinator.innova.set_fan_speed(FanSpeed.AUTO)
+            success = await self.coordinator.innova.set_fan_speed(FanSpeed.AUTO)
         if fan_mode == FAN_LOW:
-            await self.coordinator.innova.set_fan_speed(FanSpeed.LOW)
+            success = await self.coordinator.innova.set_fan_speed(FanSpeed.LOW)
         if fan_mode == FAN_MEDIUM:
-            await self.coordinator.innova.set_fan_speed(FanSpeed.MEDIUM)
+            success = await self.coordinator.innova.set_fan_speed(FanSpeed.MEDIUM)
         if fan_mode == FAN_HIGH:
-            await self.coordinator.innova.set_fan_speed(FanSpeed.HIGH)
-        self.coordinator.async_update_listeners()
+            success = await self.coordinator.innova.set_fan_speed(FanSpeed.HIGH)
+        self.coordinator.async_handle_command(success)
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
+        success = False
         if swing_mode == SWING_ON:
-            await self.coordinator.innova.rotation_on()
+            success = await self.coordinator.innova.rotation_on()
         if swing_mode == SWING_OFF:
-            await self.coordinator.innova.rotation_off()
-        self.coordinator.async_update_listeners()
+            success = await self.coordinator.innova.rotation_off()
+        self.coordinator.async_handle_command(success)
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
-        await self.coordinator.innova.set_temperature(temperature)
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.set_temperature(temperature)
+        self.coordinator.async_handle_command(success)
 
     async def async_turn_on(self) -> None:
-        await self.coordinator.innova.power_on()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.power_on()
+        self.coordinator.async_handle_command(success)
 
     async def async_turn_off(self) -> None:
-        await self.coordinator.innova.power_off()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.power_off()
+        self.coordinator.async_handle_command(success)

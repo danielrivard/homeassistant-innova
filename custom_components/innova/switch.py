@@ -54,12 +54,12 @@ class InnovaSchedulingSwitch(InnovaBaseSwitch):
         return self.coordinator.innova.scheduling_mode
 
     async def async_turn_on(self) -> None:
-        await self.coordinator.innova.set_scheduling_on()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.set_scheduling_on()
+        self.coordinator.async_handle_command(success)
 
     async def async_turn_off(self) -> None:
-        await self.coordinator.innova.set_scheduling_off()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.set_scheduling_off()
+        self.coordinator.async_handle_command(success)
 
 
 class InnovaKeyboardLockSwitch(InnovaBaseSwitch):
@@ -73,9 +73,9 @@ class InnovaKeyboardLockSwitch(InnovaBaseSwitch):
         return self.coordinator.innova.keyboard_locked
 
     async def async_turn_on(self) -> None:
-        await self.coordinator.innova.lock_keyboard()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.lock_keyboard()
+        self.coordinator.async_handle_command(success)
 
     async def async_turn_off(self) -> None:
-        await self.coordinator.innova.unlock_keyboard()
-        self.coordinator.async_update_listeners()
+        success = await self.coordinator.innova.unlock_keyboard()
+        self.coordinator.async_handle_command(success)
