@@ -94,17 +94,17 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         return PRECISION_TENTHS
 
     @property
-    def temperature_unit(self):
+    def native_temperature_unit(self):
         """Return the unit of measurement."""
         return UnitOfTemperature.CELSIUS
 
     @property
-    def current_temperature(self) -> float:
+    def native_current_temperature(self) -> float:
         """Return the current temperature."""
         return self.coordinator.innova.ambient_temp
 
     @property
-    def target_temperature(self):
+    def native_target_temperature(self):
         """Return the temperature we try to reach."""
         return self.coordinator.innova.target_temperature
 
@@ -128,13 +128,15 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
             return HVACAction.OFF
 
         mode = self.coordinator.innova.mode
+        current = self.native_current_temperature
+        target = self.native_target_temperature
         if mode.is_heating:
-            if self.current_temperature < self.target_temperature:
+            if current < target:
                 return HVACAction.HEATING
             else:
                 return HVACAction.IDLE
         if mode.is_cooling:
-            if self.current_temperature > self.target_temperature:
+            if current > target:
                 return HVACAction.COOLING
             else:
                 return HVACAction.IDLE
@@ -143,9 +145,9 @@ class InnovaEntity(CoordinatorEntity[InnovaCoordinator], ClimateEntity):
         if mode.is_fan_only:
             return HVACAction.FAN
         if mode.is_auto:
-            if self.current_temperature > self.target_temperature + 1:
+            if current > target + 1:
                 return HVACAction.COOLING
-            elif self.current_temperature < self.target_temperature - 1:
+            elif current < target - 1:
                 return HVACAction.HEATING
             else:
                 return HVACAction.IDLE
